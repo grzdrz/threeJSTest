@@ -5,7 +5,25 @@ import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 /* const loader = new THREE.JSONLoader(); */
 const loader = new GLTFLoader();
 
-class GameObject {
+function rotateAboutPoint(obj, point, axis, theta, pointIsWorld) {
+  pointIsWorld = pointIsWorld === undefined ? false : pointIsWorld;
+
+  if (pointIsWorld) {
+    obj.parent.localToWorld(obj.position); // compensate for world coordinate
+  }
+
+  obj.position.sub(point); // remove the offset
+  obj.position.applyAxisAngle(axis, theta); // rotate the POSITION
+  obj.position.add(point); // re-add the offset
+
+  if (pointIsWorld) {
+    obj.parent.worldToLocal(obj.position); // undo world coordinates compensation
+  }
+
+  obj.rotateOnAxis(axis, theta); // rotate the OBJECT
+}
+
+class GameObject2 {
   constructor(gameScene) {
     this.gameScene = gameScene;
     /* this.geometry = new THREE.BoxGeometry(0.2, 0.2, 0.2); */
@@ -21,12 +39,15 @@ class GameObject {
   async initObject() {
     return new Promise((resolve) => {
       loader.load(
-        "src/objects/untitled.glb",
+        "src/objects/bullet.glb",
         (gltf) => {
-          gltf.scene.scale.set(2, 2, 2);
-          gltf.scene.position.x = 0; //Position (x = right+ left-)
-          gltf.scene.position.y = 0; //Position (y = up+, down-)
+          gltf.scene.scale.set(0.5, 0.5, 0.5);
+          gltf.scene.position.x = 1; //Position (x = right+ left-)
+          gltf.scene.position.y = 1; //Position (y = up+, down-)
           gltf.scene.position.z = 0; //Position (z = front +, back-)
+
+          gltf.scene.rotation.x = 0;
+          gltf.scene.rotation.y = (2 * Math.PI) / 4;
 
           this.obj = gltf.scene;
 
@@ -51,22 +72,22 @@ class GameObject {
   }
 
   handleClick(event) {
-    /* const x = (event.clientX - window.RENDERER.domElement.width / 2) / 1920;
+    const x = (event.clientX - window.RENDERER.domElement.width / 2) / 1920;
     const y = -(event.clientY - window.RENDERER.domElement.height / 2) / 937;
-    this.move(x, y); */
-
-    const bullet = this.obj.children.pop();
-
-    this.gameScene.scene.add(bullet);
+    this.move(x, y);
   }
 
   update() {
     this.rotate(this.obj.rotation.x + 0.01, this.obj.rotation.y + 0.01);
   }
 
-  rotate(x, y) {
-    this.obj.rotation.x = x;
-    this.obj.rotation.y = y;
+  rotate() {
+    /* rotateAboutPoint(
+      this.obj,
+      new THREE.Vector3(0, 0, 0),
+      new THREE.Vector3(0, 1, 0),
+      0.1
+    ); */
   }
 
   move(x, y) {
@@ -75,4 +96,4 @@ class GameObject {
   }
 }
 
-export default GameObject;
+export default GameObject2;
