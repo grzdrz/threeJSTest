@@ -16,6 +16,8 @@ class GameObject {
     this.move = this.move.bind(this);
     this.handleClick = this.handleClick.bind(this);
     this.initObject = this.initObject.bind(this);
+
+    this.isInitialized = false;
   }
 
   async initObject() {
@@ -31,12 +33,14 @@ class GameObject {
           this.obj = gltf.scene;
 
           resolve(gltf.scene);
+
+          this.isInitialized = true;
         },
         (xhr) => {
           console.log((xhr.loaded / xhr.total) * 100 + "% loaded");
         },
         (err) => {
-          console.log(err);
+          console.log(`OH SHIT, loading of object failed with ${err}`);
         }
       );
     });

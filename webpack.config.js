@@ -30,7 +30,8 @@ module.exports = {
   },
 
   resolve: {
-    extensions: [".ts", ".tsx", ".js"],
+    modules: ["node_modules", path.resolve(__dirname, "src")],
+    extensions: [".ts", ".tsx", ".js", ".json", ".jsx", ".css"],
   },
 
   plugins: pluginsOptions,
@@ -38,7 +39,9 @@ module.exports = {
   module: {
     rules: [
       {
-        test: /\.js$/,
+        test: /\.js|.jsx?$/,
+        exclude: /(node_modules)/,
+        loaders: ["babel-loader"],
       },
       {
         test: /\.(ttf|eot|woff|woff2|svg|png|jpg)$/,
